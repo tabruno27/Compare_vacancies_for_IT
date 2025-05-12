@@ -36,9 +36,8 @@ def get_superjob_statistics(programming_languages, headers_superjob, superjob_pa
             print(f"Загрузка вакансий для языка: {language}, страница: {page}")
             response = requests.get(url, headers=headers_superjob, params=params, verify=False)
 
-            if response.status_code != 200:
-                print(f"Ошибка при запросе: {response.status_code} - {response.text}")
-                break
+            if response.ok:
+                pass
 
             superjob_response_data = response.json()
 
