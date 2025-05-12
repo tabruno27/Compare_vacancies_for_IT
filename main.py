@@ -6,15 +6,15 @@ import os
 
 
 def print_salary_statistics(statistics, title):
-    table_data = [['Язык программирования', 'Найдено вакансий', 'Обработано вакансий', 'Средняя зарплата']]
-    for language, salary_data in statistics.items():
-        table_data.append([
+    vacancy_statistics_table = [['Язык программирования', 'Найдено вакансий', 'Обработано вакансий', 'Средняя зарплата']]
+    for language, salary_statistics in statistics.items():
+        vacancy_statistics_table.append([
             language,
-            salary_data['vacancies_found'],
-            salary_data['vacancies_processed'],
-            salary_data['average_salary']
+            salary_statistics['vacancies_found'],
+            salary_statistics['vacancies_processed'],
+            salary_statistics['average_salary']
         ])
-    table = AsciiTable(table_data, title)
+    table = AsciiTable(vacancy_statistics_table, title)
     print(table.table)
 
 def get_superjob_statistics(programming_languages, headers_superjob, superjob_page_count):
@@ -39,14 +39,14 @@ def get_superjob_statistics(programming_languages, headers_superjob, superjob_pa
             if response.ok:
                 pass
 
-            superjob_response_data = response.json()
+            superjob_response = response.json()
 
-            if 'objects' not in superjob_response_data or not superjob_response_data['objects']:
+            if 'objects' not in superjob_response or not superjob_response['objects']:
                 break
 
-            for vacancy in superjob_response_data['objects']:
+            for vacancy in superjob_response['objects']:
                 total_vacancies_processed += 1
-                total_vacancies_found = superjob_response_data['total']
+                total_vacancies_found = superjob_response['total']
 
                 salary_from = vacancy.get('payment_from', 0)
                 salary_to = vacancy.get('payment_to', 0)
@@ -95,17 +95,17 @@ def get_hh_statistics(programming_languages, area_moscow,vacancies_per_page,head
 
         response = requests.get(url, params=params, headers=headers_hh, verify=False)
         response.raise_for_status()
-        hh_data = response.json()
+        hh_response = response.json()
 
-        vacancies_found = hh_data['found']
-        pages_number = hh_data['pages']
+        vacancies_found = hh_response['found']
+        pages_number = hh_response['pages']
 
         print(f"Найдено вакансий: {vacancies_found}, страниц: {pages_number}")
 
         vacancies_processed = 0
         total_salary = 0
 
-        for vacancy in hh_data['items']:
+        for vacancy in hh_response['items']:
             expected_salary = predict_rub_salary_hh(vacancy)
             if expected_salary:
                 total_salary += expected_salary
