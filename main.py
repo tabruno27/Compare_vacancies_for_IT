@@ -88,10 +88,10 @@ def get_hh_statistics(programming_languages, area_moscow,vacancies_per_page,head
     for language in programming_languages:
         url = f"https://api.hh.ru/vacancies"
         params = {
-            'area': area_moscow,  # Москва
+            'area': area_moscow,
             'text': language,
-            'per_page': vacancies_per_page,  # Количество вакансий на странице
-            'page': 0  # Начальная страница
+            'per_page': vacancies_per_page,
+            'page': 0 
         }
 
         vacancies_found = 0
@@ -103,7 +103,6 @@ def get_hh_statistics(programming_languages, area_moscow,vacancies_per_page,head
         initial_data = initial_response.json()
         vacancies_found = initial_data['found']
 
-        # Определяем количество страниц
         pages_number = (vacancies_found // 20) + (1 if vacancies_found % 20 > 0 else 0)
 
         print(f"Найдено вакансий: {vacancies_found}, страниц: {pages_number}")
@@ -112,20 +111,17 @@ def get_hh_statistics(programming_languages, area_moscow,vacancies_per_page,head
         while page < pages_number:
             print(f"Загрузка {language}, страница {page + 1} из {pages_number}")
 
-            # Обновляем параметры для текущей страницы
             params['page'] = page
             page_response = requests.get(url, params=params, headers=headers_hh, verify=False)
 
-            # Проверка на ошибки
             try:
                 page_response.raise_for_status()
             except requests.exceptions.HTTPError as e:
                 print(f"Ошибка при загрузке страницы {page + 1}: {e}")
-                break  # Прерываем цикл, если произошла ошибка
+                break
 
             page_payload = page_response.json()
 
-            # Обрабатываем вакансии на текущей странице
             for vacancy in page_payload['items']:
                 expected_salary = predict_rub_salary_hh(vacancy)
                 if expected_salary is not None:
@@ -133,7 +129,7 @@ def get_hh_statistics(programming_languages, area_moscow,vacancies_per_page,head
                     vacancies_processed += 1
 
             page += 1
-            time.sleep(1)  # Задержка между запросами
+            time.sleep(1)
 
         if vacancies_processed > 0:
             average_salary = int(total_salary / vacancies_processed)
