@@ -148,23 +148,19 @@ def predict_rub_salary_hh(vacancy):
     from_salary = salary.get('from')
     to_salary = salary.get('to')
 
-    return predict_rub_salary({'salary': {'from': from_salary, 'to': to_salary, 'currency': 'RUR'}})
+    return predict_rub_salary(from_salary, to_salary, 'RUR')
 
 
 def predict_rub_salary_sj(vacancy):
     salary_from = vacancy.get('payment_from', 0)
     salary_to = vacancy.get('payment_to', 0)
 
-    return predict_rub_salary({'salary': {'from': salary_from, 'to': salary_to, 'currency': 'RUR'}})
+    return predict_rub_salary(salary_from, salary_to, 'RUR')
 
 
-def predict_rub_salary(vacancy):
-    
-    if 'currency' in vacancy and vacancy['currency'] != 'RUR':
+def predict_rub_salary(salary_from=None, salary_to=None, currency='RUR'):
+    if currency != 'RUR':
         return None
-
-    salary_from = vacancy.get('salary', {}).get('from')
-    salary_to = vacancy.get('salary', {}).get('to')
 
     if salary_from is not None and salary_to is not None:
         return (salary_from + salary_to) / 2
