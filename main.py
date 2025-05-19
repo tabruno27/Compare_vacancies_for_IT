@@ -83,11 +83,11 @@ def get_hh_statistics(programming_languages, area_moscow, vacancies_per_page, he
 
         initial_response = requests.get(url, params=params, headers=headers_hh, verify=False)
         initial_response.raise_for_status()
-        initial_data = initial_response.json()
+        initial_response_content = initial_response.json()
 
-        vacancies_found = initial_data['found']
-        vacancies = initial_data['items']
-        pages_number = initial_data['pages']  
+        vacancies_found = initial_response_content['found']
+        vacancies = initial_response_content['items']
+        pages_number = initial_response_content['pages']  
 
         print(f"Найдено вакансий: {vacancies_found}, страниц: {pages_number}")
 
