@@ -162,14 +162,14 @@ def predict_rub_salary(salary_from=None, salary_to=None, currency='RUR'):
     if currency != 'RUR':
         return None
 
-    if salary_from is not None and salary_to is not None:
+    if salary_from > 0 and salary_to > 0:
         return (salary_from + salary_to) / 2
-    elif salary_from is not None:
+    if salary_from > 0:
         return salary_from * 1.2
-    elif salary_to is not None:
+    if salary_to > 0:
         return salary_to * 0.8
 
-    return None
+    return 0
 
 
 def main():
