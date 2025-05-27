@@ -18,6 +18,19 @@ def print_salary_statistics(statistics, title):
     print(table.table)
 
 
+def process_vacancies(vacancies, salary_predictor):
+    total_vacancies_processed = 0
+    total_salary = 0
+
+    for vacancy in vacancies:
+        expected_salary = salary_predictor(vacancy)
+        if expected_salary is not None:
+            total_salary += expected_salary
+            total_vacancies_processed += 1
+
+    return total_salary, total_vacancies_processed
+
+
 def get_superjob_statistics(programming_languages, headers_superjob, superjob_page_count):
     salary_statistics = {}
     for language in programming_languages:
@@ -46,12 +59,8 @@ def get_superjob_statistics(programming_languages, headers_superjob, superjob_pa
             if 'objects' not in superjob_response or not superjob_response['objects']:
                 break
 
-            for vacancy in superjob_response['objects']:
-                total_vacancies_processed += 1
-                total_vacancies_found = superjob_response['total']
-
-                expected_salary = predict_rub_salary_sj(vacancy)  
-                total_salary += expected_salary if expected_salary else 0
+            total_vacancies_found = superjob_response['total']
+            total_salary, total_vacancies_processed = process_vacancies(superjob_response['objects'], predict_rub_salary_sj)
 
             page += 1
             time.sleep(1)
@@ -91,25 +100,14 @@ def get_hh_statistics(programming_languages, area_moscow, vacancies_per_page, he
 
         print(f"Найдено вакансий: {vacancies_found}, страниц: {pages_number}")
 
-        vacancies_processed = 0
-        total_salary = 0
+        total_salary, vacancies_processed = process_vacancies(initial_response_content['items'], predict_rub_salary_hh)
 
-        
-        for vacancy in vacancies:
-            expected_salary = predict_rub_salary_hh(vacancy)
-            if expected_salary is not None:
-                total_salary += expected_salary
-                vacancies_processed += 1
-
-        
         for page in range(1, pages_number):
             print(f"Загрузка {language}, страница {page + 1} из {pages_number}")
 
-          
             params['page'] = page
             page_response = requests.get(url, params=params, headers=headers_hh, verify=False)
 
-            
             try:
                 page_response.raise_for_status()
             except requests.exceptions.HTTPError as e:
@@ -118,18 +116,14 @@ def get_hh_statistics(programming_languages, area_moscow, vacancies_per_page, he
 
             page_payload = page_response.json()
 
-            for vacancy in page_payload['items']:
-                expected_salary = predict_rub_salary_hh(vacancy)
-                if expected_salary:
-                    total_salary += expected_salary
-                    vacancies_processed += 1
+            page_total_salary, page_vacancies_processed = process_vacancies(page_payload['items'], predict_rub_salary_hh)
+
+            total_salary += page_total_salary
+            vacancies_processed += page_vacancies_processed
 
             time.sleep(1)  
 
-        if vacancies_processed:
-            average_salary = int(total_salary / vacancies_processed)
-        else:
-            average_salary = 0
+        average_salary = int(total_salary / vacancies_processed) if vacancies_processed else 0
 
         salary_statistics[language] = {
             "vacancies_found": vacancies_found,
