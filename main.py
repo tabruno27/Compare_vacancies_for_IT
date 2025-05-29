@@ -18,7 +18,7 @@ def print_salary_statistics(statistics, title):
     print(table.table)
 
 
-def process_vacancies(vacancies, salary_predictor):
+def summarize_vacancies_salary(vacancies, salary_predictor):
     total_vacancies_processed = 0
     total_salary = 0
 
@@ -60,7 +60,7 @@ def get_superjob_statistics(programming_languages, headers_superjob, superjob_pa
                 break
 
             total_vacancies_found = superjob_response['total']
-            total_salary, total_vacancies_processed = process_vacancies(superjob_response['objects'], predict_rub_salary_sj)
+            total_salary, total_vacancies_processed = summarize_vacancies_salary(superjob_response['objects'], predict_rub_salary_sj)
 
             page += 1
             time.sleep(1)
@@ -100,7 +100,7 @@ def get_hh_statistics(programming_languages, area_moscow, vacancies_per_page, he
 
         print(f"Найдено вакансий: {vacancies_found}, страниц: {pages_number}")
 
-        total_salary, vacancies_processed = process_vacancies(initial_response_content['items'], predict_rub_salary_hh)
+        total_salary, vacancies_processed = summarize_vacancies_salary(initial_response_content['items'], predict_rub_salary_hh)
 
         for page in range(1, pages_number):
             print(f"Загрузка {language}, страница {page + 1} из {pages_number}")
@@ -116,7 +116,7 @@ def get_hh_statistics(programming_languages, area_moscow, vacancies_per_page, he
 
             page_payload = page_response.json()
 
-            page_total_salary, page_vacancies_processed = process_vacancies(page_payload['items'], predict_rub_salary_hh)
+            page_total_salary, page_vacancies_processed = summarize_vacancies_salary(page_payload['items'], predict_rub_salary_hh)
 
             total_salary += page_total_salary
             vacancies_processed += page_vacancies_processed
