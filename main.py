@@ -24,7 +24,7 @@ def summarize_vacancies_salary(vacancies, salary_predictor):
 
     for vacancy in vacancies:
         expected_salary = salary_predictor(vacancy)
-        if expected_salary is not None:
+        if expected_salary:
             total_salary += expected_salary
             total_vacancies_processed += 1
 
