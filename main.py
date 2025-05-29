@@ -62,13 +62,13 @@ def get_superjob_statistics(programming_languages, headers_superjob, superjob_pa
             total_vacancies_found = superjob_response['total']
             total_salary, total_vacancies_processed = summarize_vacancies_salary(superjob_response['objects'], predict_rub_salary_sj)
 
+            total_salary += page_total_salary
+            total_vacancies_processed += page_vacancies_processed
+            
             page += 1
             time.sleep(1)
 
-        if total_vacancies_processed:
-            average_salary = int(total_salary / total_vacancies_processed)
-        else:
-            average_salary = 0
+        average_salary = int(total_salary / total_vacancies_processed) if total_vacancies_processed else 0
 
         salary_statistics[language] = {
             "vacancies_found": total_vacancies_found,
@@ -95,11 +95,13 @@ def get_hh_statistics(programming_languages, area_moscow, vacancies_per_page, he
         initial_response_content = initial_response.json()
 
         vacancies_found = initial_response_content['found']
-        vacancies = initial_response_content['items']
-        pages_number = initial_response_content['pages']  
+        pages_number = initial_response_content['pages'] 
 
         print(f"Найдено вакансий: {vacancies_found}, страниц: {pages_number}")
 
+        total_salary = 0
+        total_vacancies_processed = 0
+        
         total_salary, vacancies_processed = summarize_vacancies_salary(initial_response_content['items'], predict_rub_salary_hh)
 
         for page in range(1, pages_number):
@@ -117,9 +119,9 @@ def get_hh_statistics(programming_languages, area_moscow, vacancies_per_page, he
             page_payload = page_response.json()
 
             page_total_salary, page_vacancies_processed = summarize_vacancies_salary(page_payload['items'], predict_rub_salary_hh)
-
+            
             total_salary += page_total_salary
-            vacancies_processed += page_vacancies_processed
+            total_vacancies_processed += page_vacancies_processed
 
             time.sleep(1)  
 
